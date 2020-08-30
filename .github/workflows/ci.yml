@@ -1,0 +1,19 @@
+name: CI
+
+on: push
+
+jobs:
+  gnat_ce_2020:
+    name: gnat-community-2020
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: GNAT Community 2020
+        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "gprbuild -p -P cobs.gpr -j0"
+  proof:
+    name: proof
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Proof
+        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "gnatprove -P cobs.gpr -j0 --level=1"
