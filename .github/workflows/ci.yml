@@ -17,3 +17,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Proof
         run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "gnatprove -P /app/cobs.gpr -j0 --level=1"
+  proof:
+    name: unit_test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Unit tests
+        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "cd /app/tests && ./run_tests.sh"
