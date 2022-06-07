@@ -1,0 +1,16 @@
+name = "prove"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["Daniel King"]
+maintainers = ["Daniel King <damaki.gh@gmail.com>"]
+maintainers-logins = ["damaki"]
+
+executables = ["prove"]
+
+[[depends-on]]
+gnatprove = "^11.2.3"
+cobs = "*"
+
+[[pins]]
+cobs = { path = "../" }

@@ -90,7 +90,8 @@ is
    --  Test the output of Encode when presented with an input consisting of
    --  no zero bytes.
    --
-   --  The output should contain additional overhead bytes, in groups of 254 bytes.
+   --  The output should contain additional overhead bytes
+   --  in groups of 254 bytes.
 
    procedure Test_Encode_No_Zeroes (T : in out Test)
    is
@@ -140,14 +141,19 @@ is
    --  Test the decoder behaviour when the frame delimiter is missing from
    --  the input buffer.
    --
-   --  The decoder should continue until the end of the input buffer is reached.
+   --  The decoder should continue until the end of the input buffer is reached
 
    procedure Test_Decode_No_Frame_Delimiter (T : in out Test)
    is
-      Input           : constant Storage_Array (1 .. 7) := (6, 1, 2, 3, 4, 5, 5);
-      Expected_Output : constant Storage_Array (1 .. 6) := (   1, 2, 3, 4, 5, 0);
-      Output          :          Storage_Array (1 .. 10);
-      Length          :          Storage_Count;
+      Input           : constant Storage_Array (1 .. 7) :=
+        (6, 1, 2, 3, 4, 5, 5);
+
+      Expected_Output : constant Storage_Array (1 .. 6) :=
+        (1, 2, 3, 4, 5, 0);
+
+      Output : Storage_Array (1 .. 10);
+      Length : Storage_Count;
+
    begin
       COBS.Decode (Input, Output, Length);
       Assert (Output (1 .. Length) = Expected_Output, "Failed output");
@@ -163,31 +169,33 @@ is
    is
       --  Short case with no replaced bytes.
       Input_1  : constant Storage_Array (1 .. 7) := (6, 1, 2, 3, 4, 5, 0);
-      Output_1 : constant Storage_Array (1 .. 5) := (   1, 2, 3, 4, 5   );
+      Output_1 : constant Storage_Array (1 .. 5) :=    (1, 2, 3, 4, 5);
 
       --  Short case with one replaced byte.
       Input_2  : constant Storage_Array (1 .. 7) := (3, 1, 2, 3, 4, 5, 0);
-      Output_2 : constant Storage_Array (1 .. 5) := (   1, 2, 0, 4, 5   );
+      Output_2 : constant Storage_Array (1 .. 5) :=    (1, 2, 0, 4, 5);
 
       --  Case where data size is 253 (no extra overhead byte)
-      Input_3 : constant Storage_Array (1 .. 255) := (1      => 254, --  Overhead byte
-                                                      255    => 0,   --  Frame delimiter
-                                                      others => 123);
+      Input_3 : constant Storage_Array (1 .. 255) :=
+        (1      => 254, --  Overhead byte
+         255    => 0,   --  Frame delimiter
+         others => 123);
       Output_3 : constant Storage_Array (1 .. 253) := (others => 123);
 
       --  Case where data size is 254 (no extra overhead byte)
-      Input_4 : constant Storage_Array (1 .. 256) := (1      => 255, --  Overhead byte
-                                                      256    => 0,   --  Frame delimiter
-                                                      others => 123);
+      Input_4 : constant Storage_Array (1 .. 256) :=
+        (1      => 255, --  Overhead byte
+         256    => 0,   --  Frame delimiter
+         others => 123);
       Output_4 : constant Storage_Array (1 .. 254) := (others => 123);
 
       --  Case where data size is 255 (1 extra overhead byte)
-      Input_5 : constant Storage_Array (1 .. 258) := (1      => 255, --  Overhead byte
-                                                      256    => 2,   --  Overhead byte
-                                                      258    => 0,   --  Frame delimiter
-                                                      others => 123);
+      Input_5 : constant Storage_Array (1 .. 258) :=
+        (1      => 255, --  Overhead byte
+         256    => 2,   --  Overhead byte
+         258    => 0,   --  Frame delimiter
+         others => 123);
       Output_5 : constant Storage_Array (1 .. 255) := (others => 123);
-
 
       Output : Storage_Array (1 .. 1000);
       Length : Storage_Count;
@@ -256,7 +264,8 @@ is
                  "Invalid length on iteration:" & Integer'Image (I));
 
          Assert (Decoded (1 .. Length) = Input,
-                 "Decoded data does not match original input on iteration:" & Integer'Image (I));
+                 "Decoded data does not match original input on iteration:" &
+                 Integer'Image (I));
       end loop;
    end Test_Encode_Decode_Loopback;
 
@@ -268,20 +277,27 @@ is
    is
       Ret : constant Access_Test_Suite := new Test_Suite;
    begin
-      Ret.Add_Test (Test_Caller.Create ("Encode an empty array",
-                                        Test_Encode_Empty'Access));
-      Ret.Add_Test (Test_Caller.Create ("Encode an array of all zeroes",
-                                        Test_Encode_All_Zeroes'Access));
-      Ret.Add_Test (Test_Caller.Create ("Encode an array of no zeroes",
-                                        Test_Encode_No_Zeroes'Access));
-      Ret.Add_Test (Test_Caller.Create ("Decode an empty frame",
-                                        Test_Decode_Empty_Frame'Access));
-      Ret.Add_Test (Test_Caller.Create ("Decode a frame with a missing frame delimiter",
-                                        Test_Decode_No_Frame_Delimiter'Access));
-      Ret.Add_Test (Test_Caller.Create ("Decode test vectors",
-                                        Test_Decode_Test_Vectors'Access));
-      Ret.Add_Test (Test_Caller.Create ("Encode/decode loopback",
-                                        Test_Encode_Decode_Loopback'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Encode an empty array",
+                             Test_Encode_Empty'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Encode an array of all zeroes",
+                             Test_Encode_All_Zeroes'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Encode an array of no zeroes",
+                             Test_Encode_No_Zeroes'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Decode an empty frame",
+                             Test_Decode_Empty_Frame'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Decode a frame with a missing frame delimiter",
+                             Test_Decode_No_Frame_Delimiter'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Decode test vectors",
+                             Test_Decode_Test_Vectors'Access));
+      Ret.Add_Test
+        (Test_Caller.Create ("Encode/decode loopback",
+                             Test_Encode_Decode_Loopback'Access));
 
       return Ret;
    end Suite;

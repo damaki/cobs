@@ -24,10 +24,10 @@ with AUnit.Run;
 
 with COBS_Tests;
 
-procedure Main is
+procedure Unit_Tests is
    procedure Runner is new AUnit.Run.Test_Runner (COBS_Tests.Suite);
 
    Reporter : AUnit.Reporter.Text.Text_Reporter;
 begin
    Runner (Reporter);
-end Main;
+end Unit_Tests;

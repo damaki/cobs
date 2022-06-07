@@ -1,21 +1,10 @@
 name = "cobs"
-description = "Encoder and decoder for Consistent Overhead Byte Stuffing (COBS)"
-version = "1.0.1"
+description = "Consistent Overhead Byte Stuffing (COBS) encoder/decoder"
+version = "1.1.0-dev"
 
-licenses = ["MIT"]
+licenses = "MIT"
 authors = ["Daniel King"]
 maintainers = ["Daniel King <damaki.gh@gmail.com>"]
 maintainers-logins = ["damaki"]
 website = "https://github.com/damaki/cobs"
 tags = ["cobs", "spark", "embedded", "nostd"]
-
-[[depends-on]]
-gnat = ">=2020"
-
-[gpr-externals]
-COBS_LIBRARY_TYPE = ["relocatable", "static", "static-pic"]
-COBS_COMPILE_CHECKS = ["enabled", "disabled"]
-COBS_RUNTIME_CHECKS = ["enabled", "disabled"]
-COBS_STYLE_CHECKS = ["enabled", "disabled"]
-COBS_CONTRACTS = ["enabled", "disabled"]
-COBS_BUILD_MODE = ["debug", "optimize"]
