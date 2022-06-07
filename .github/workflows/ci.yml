@@ -35,6 +35,6 @@ jobs:
           alr run
 
       - name: Proof
-        run:
+        run: |
           cd prove
           alr exec -- gnatprove -P ../cobs.gpr
