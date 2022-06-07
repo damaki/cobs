@@ -1,26 +1,39 @@
-name: CI
-
-on: [push, pull_request]
+on:                    # Run the workflow for each of the following event:
+  push:                # - A branch is pushed or updated.
+    branches:
+      - master
+  pull_request:        # - A pull-request is opened or updated.
+  workflow_dispatch:   # - A manual run of the workflow is requested from the GitHub web interface.
+  release:
+    types: [created]   # - A release is created.
 
 jobs:
-  gnat_ce_2020:
-    name: gnat-community-2020
-    runs-on: ubuntu-latest
+  build-and-test:
+    strategy:
+      fail-fast: false # Don't stop all the workflows when one of them fails.
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+
+    runs-on: ${{ matrix.os }}
+
     steps:
+      # Checkout the repository
       - uses: actions/checkout@v2
-      - name: GNAT Community 2020
-        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "gprbuild -p -P /app/cobs.gpr -j0"
-  proof:
-    name: proof
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Proof
-        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "gnatprove -P /app/cobs.gpr -j0 --level=1"
-  unit_test:
-    name: unit_test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
+
+      # Install and setup Alire package manager
+      - uses: alire-project/setup-alire@v1
+        with:
+          version: 1.2.0
+
+      - name: Build
+        run: alr build --validation
+
       - name: Unit tests
-        run: docker run -v $PWD:/app componolit/ci:gnat-community-2020 /bin/sh -c "cd /app/tests && ./run_tests.sh"
+        run: |
+          cd tests
+          alr build --validation
+          alr run
+
+      - name: Proof
+        cd prove
+        alr exec -- gnatprove -P ../cobs.gpr
