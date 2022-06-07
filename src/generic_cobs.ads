@@ -37,17 +37,18 @@ is
    pragma Compile_Time_Error (Byte_Count'First /= 0,
                               "Byte_Count'First must be 0");
 
-   pragma Compile_Time_Error (Byte_Count'Pos (Byte_Count'Last) /= Index'Pos (Index'Last),
-                              "Byte_Count'Last must be equal to Index'Last");
+   pragma Compile_Time_Error
+     (Byte_Count'Pos (Byte_Count'Last) /= Index'Pos (Index'Last),
+      "Byte_Count'Last must be equal to Index'Last");
 
    subtype Positive_Byte_Count is Byte_Count range 1 .. Byte_Count'Last;
 
    Frame_Delimiter : constant Byte := 0;
    --  COBS uses 0 as the frame delimiter byte.
 
-   procedure Decode (Input  : in     Byte_Array;
-                     Output :    out Byte_Array;
-                     Length :    out Byte_Count)
+   procedure Decode (Input  :     Byte_Array;
+                     Output : out Byte_Array;
+                     Length : out Byte_Count)
      with Global => null,
      Relaxed_Initialization => Output,
      Pre => (
@@ -67,10 +68,11 @@ is
               --  The decoded length does not exceed the length of
               --  either array parameter.
               Length <= Output'Length
-              and Length <= Input'Length
+              and then Length <= Input'Length
 
               --  Only the first 'Length' bytes of the Output are initialized.
-              and (for all I in 0 .. Length - 1 =>
+              and then
+                (for all I in 0 .. Length - 1 =>
                      Output (Output'First + Index'Base (I))'Initialized)),
      Annotate => (GNATProve, Terminating);
    --  Decodes a COBS-encoded byte array.
@@ -86,9 +88,9 @@ is
    --
    --  @param Length The length of the decoded frame is written here.
 
-   procedure Encode (Input  : in     Byte_Array;
-                     Output :    out Byte_Array;
-                     Length :    out Byte_Count)
+   procedure Encode (Input  :     Byte_Array;
+                     Output : out Byte_Array;
+                     Length : out Byte_Count)
      with Global => null,
      Relaxed_Initialization => Output,
      Pre => (
@@ -98,20 +100,24 @@ is
              and then Array_Length_Within_Bounds (Output'First, Output'Last)
 
              --  The number of bytes to encode in the Input array must leave
-             --  enough headroom for COBS overhead bytes plus the frame delimiter.
-             and then Input'Length <= (Positive_Byte_Count'Last
-                                       - (Max_Overhead_Bytes (Positive_Byte_Count'Last) + 1))
+             --  enough headroom for COBS overhead bytes plus frame delimiter.
+             and then Input'Length <=
+               (Positive_Byte_Count'Last
+                - (Max_Overhead_Bytes (Positive_Byte_Count'Last) + 1))
 
-             --  The Output array must be large enough to encode the Input array
+             --  Output array must be large enough to encode the Input array
              --  and the additional overhead bytes.
-             and then Output'Length >= Input'Length + Max_Overhead_Bytes (Input'Length) + 1),
+             and then Output'Length >=
+               Input'Length + Max_Overhead_Bytes (Input'Length) + 1),
 
      Post => (
               --  The length of the output is always bigger than the input
               (Length in Input'Length + 1 .. Output'Length)
 
               --  Only the first 'Length' bytes of the Output are initialized.
-              and Output (Output'First .. Output'First + Index'Base (Length - 1))'Initialized),
+              and then
+                Output (Output'First ..
+                        Output'First + Index'Base (Length - 1))'Initialized),
      Annotate => (GNATProve, Terminating);
    --  Encode a byte array.
    --
@@ -128,12 +134,14 @@ is
    --
    --  @param Length The length of the encoded frame is written here.
 
-   function Max_Overhead_Bytes (Input_Length : in Byte_Count) return Positive_Byte_Count
+   function Max_Overhead_Bytes (Input_Length : Byte_Count)
+                                return Positive_Byte_Count
      with Global => null;
    --  Return the maximum number of overhead bytes that are inserted into
    --  the output during COBS encoding for a given input length.
 
-   function Array_Length_Within_Bounds (First, Last : in Index'Base) return Boolean is
+   function Array_Length_Within_Bounds (First, Last : Index'Base)
+                                        return Boolean is
      (Last < First
       or else First > 0
       or else Last < First + Index (Byte_Count'Last));
@@ -175,12 +183,13 @@ private
    --  this case is not implemented in our encoder (but is supported by
    --  the decoder).
 
-   function Max_Overhead_Bytes (Input_Length : in Byte_Count) return Positive_Byte_Count is
+   function Max_Overhead_Bytes (Input_Length : Byte_Count)
+                                return Positive_Byte_Count is
      ((Input_Length / Maximum_Run_Length) + 1);
 
-   procedure Encode_Block (Input  : in     Byte_Array;
-                           Output :    out Byte_Array;
-                           Length :    out Byte_Count)
+   procedure Encode_Block (Input  :     Byte_Array;
+                           Output : out Byte_Array;
+                           Length : out Byte_Count)
      with Inline,
      Global => null,
      Relaxed_Initialization => Output,
@@ -188,8 +197,11 @@ private
              and then Array_Length_Within_Bounds (Output'First, Output'Last)
              and then Output'Length > Input'Length),
      Post => (Length <= Input'Length + 1
-              and (if Length < Input'Length + 1 then Length >= Maximum_Run_Length + 1)
-              and Output (Output'First .. Output'First + Index'Base (Length - 1))'Initialized),
+              and then (if Length < Input'Length + 1
+                        then Length >= Maximum_Run_Length + 1)
+              and then
+                Output (Output'First ..
+                        Output'First + Index'Base (Length - 1))'Initialized),
      Annotate => (GNATProve, Terminating);
    --  Encodes a single block of bytes.
    --

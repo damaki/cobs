@@ -27,9 +27,9 @@ is
    -- Decode --
    ------------
 
-   procedure Decode (Input  : in     Byte_Array;
-                     Output :    out Byte_Array;
-                     Length :    out Byte_Count) is
+   procedure Decode (Input  :     Byte_Array;
+                     Output : out Byte_Array;
+                     Length : out Byte_Count) is
       B          : Byte;
       Code       : Byte := Byte'Last;
       Run_Length : Byte_Count := 0;
@@ -39,8 +39,10 @@ is
 
       for I in 0 .. Index'Base (Input'Length - 1) loop
          pragma Loop_Invariant (Length <= Byte_Count (I));
-         pragma Loop_Invariant (for all J in 0 .. Length - 1 =>
-                                  Output (Output'First + Index'Base (J))'Initialized);
+
+         pragma Loop_Invariant
+           (for all J in 0 .. Length - 1 =>
+              Output (Output'First + Index'Base (J))'Initialized);
 
          B := Input (Input'First + I);
 
@@ -70,9 +72,9 @@ is
    -- Encode --
    ------------
 
-   procedure Encode (Input  : in     Byte_Array;
-                     Output :    out Byte_Array;
-                     Length :    out Byte_Count) is
+   procedure Encode (Input  :     Byte_Array;
+                     Output : out Byte_Array;
+                     Length : out Byte_Count) is
       Block_Length : Positive_Byte_Count;
       Offset       : Byte_Count;
       Remaining    : Byte_Count;
@@ -92,16 +94,23 @@ is
                               Increases => Offset,
                               Increases => Length,
                               Increases => Nb_Overhead_Bytes);
-         pragma Loop_Invariant (Offset + Remaining = Input'Length);
-         pragma Loop_Invariant (Length = Offset + Nb_Overhead_Bytes);
-         pragma Loop_Invariant (Nb_Overhead_Bytes < Max_Overhead_Bytes (Offset));
-         pragma Loop_Invariant (for all I in Output'First ..
-                                             Output'First + Index'Base (Length - 1) =>
-                                  Output (I)'Initialized);
 
-         Encode_Block (Input  (Input'First  + Index'Base (Offset) .. Input'Last),
-                       Output (Output'First + Index'Base (Length) .. Output'Last),
-                       Block_Length);
+         pragma Loop_Invariant (Offset + Remaining = Input'Length);
+
+         pragma Loop_Invariant (Length = Offset + Nb_Overhead_Bytes);
+
+         pragma Loop_Invariant
+           (Nb_Overhead_Bytes < Max_Overhead_Bytes (Offset));
+
+         pragma Loop_Invariant
+           (for all I in Output'First ..
+                         Output'First + Index'Base (Length - 1) =>
+                Output (I)'Initialized);
+
+         Encode_Block
+           (Input  (Input'First  + Index'Base (Offset) .. Input'Last),
+            Output (Output'First + Index'Base (Length) .. Output'Last),
+            Block_Length);
 
          Nb_Overhead_Bytes := Nb_Overhead_Bytes + 1;
 
@@ -119,9 +128,9 @@ is
    --  Encode_Block  --
    --------------------
 
-   procedure Encode_Block (Input  : in     Byte_Array;
-                           Output :    out Byte_Array;
-                           Length :    out Byte_Count) is
+   procedure Encode_Block (Input  :     Byte_Array;
+                           Output : out Byte_Array;
+                           Length : out Byte_Count) is
       B : Byte;
 
       Code : Positive_Byte_Count  := 1;
@@ -142,14 +151,22 @@ is
       if Input'Length > 0 then
          for I in Byte_Count range 0 .. Input'Length - 1 loop
             pragma Loop_Invariant (Code <= Maximum_Run_Length + 1);
-            pragma Loop_Invariant (Code = Length - Byte_Count (Code_Pos - Output'First));
-            pragma Loop_Invariant (Code_Pos in Output'First ..
-                                               Output'First + Index'Base (Length) - 1);
+
+            pragma Loop_Invariant
+              (Code = Length - Byte_Count (Code_Pos - Output'First));
+
+            pragma Loop_Invariant
+              (Code_Pos in Output'First ..
+                           Output'First + Index'Base (Length) - 1);
+
             pragma Loop_Invariant (Length = Byte_Count (I + 1));
-            pragma Loop_Invariant (for all I in Output'First ..
-                                                Output'First + Index'Base (Length) - 1 =>
-                                     (if I /= Code_Pos then
-                                         Output (I)'Initialized));
+
+            --  All bytes written so far are initialized, except the
+            --  one at Code_Pos which is written later.
+            pragma Loop_Invariant
+              (for all I in Output'First ..
+                            Output'First + Index'Base (Length) - 1 =>
+                   (if I /= Code_Pos then Output (I)'Initialized));
 
             --  Stop when a complete block is reached.
             exit when Code = Maximum_Run_Length + 1;

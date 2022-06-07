@@ -1,0 +1,16 @@
+name = "unit_tests"
+description = "Shiny new project"
+version = "0.1.0-dev"
+
+authors = ["Daniel King"]
+maintainers = ["Daniel King <damaki.gh@gmail.com>"]
+maintainers-logins = ["damaki"]
+
+executables = ["unit_tests"]
+
+[[depends-on]]
+aunit = "^22.0.0"
+cobs = "*"
+
+[[pins]]
+cobs = { path = "../" }
