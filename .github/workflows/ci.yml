@@ -34,6 +34,29 @@ jobs:
           alr build --validation
           alr run
 
+      - name: Instrument the project for coverage analysis
+        run: |
+          cd tests
+          alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
+
+      - name: Build and run the tests with instrumented code
+        run:
+          cd tests
+          alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+          alr exec -- bin/unit_tests
+
+      - name: Run GNATcov code coverage analysis on the test files
+        run:
+          alr gnatcov coverage --annotate=xcov --output_dir=gnatcov_out --level=stmt+mcdc --projects cobs.gpr *srctrace
+
+      - uses: alire-project/gnatcov-to-codecovio-action@main
+        with:
+          fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
+          verbose: true
+
+      - name: Upload coverage report
+        run:
+
       - name: Proof
         run: |
           cd prove
