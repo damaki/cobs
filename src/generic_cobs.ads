@@ -117,7 +117,16 @@ is
               --  Only the first 'Length' bytes of the Output are initialized.
               and then
                 Output (Output'First ..
-                        Output'First + Index'Base (Length - 1))'Initialized),
+                        Output'First + Index'Base (Length - 1))'Initialized
+
+              --  The last byte in the output is a frame delimiter.
+              --  All other bytes before the frame delimiter are non-zero.
+              and then
+                (for all I in Output'First ..
+                              Output'First + Index'Base (Length - 1) =>
+                   (if I < Output'First + Index'Base (Length - 1)
+                    then Output (I) /= Frame_Delimiter
+                    else Output (I) = Frame_Delimiter))),
      Annotate => (GNATProve, Terminating);
    --  Encode a byte array.
    --
@@ -129,8 +138,7 @@ is
    --  @param Input The bytes to encode.
    --
    --  @param Output The COBS-encoded data is written to the first "Length"
-   --                bytes of this array. Any unused bytes at the end of the
-   --                array are initialised to the frame delimiter value (zero).
+   --                bytes of this array. The last byte is a frame delimiter.
    --
    --  @param Length The length of the encoded frame is written here.
 
@@ -201,7 +209,11 @@ private
                         then Length >= Maximum_Run_Length + 1)
               and then
                 Output (Output'First ..
-                        Output'First + Index'Base (Length - 1))'Initialized),
+                        Output'First + Index'Base (Length - 1))'Initialized
+              and then
+                (for all I in Output'First ..
+                              Output'First + Index'Base (Length - 1) =>
+                    Output (I) /= Frame_Delimiter)),
      Annotate => (GNATProve, Terminating);
    --  Encodes a single block of bytes.
    --

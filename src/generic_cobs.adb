@@ -105,6 +105,11 @@ is
                          Output'First + Index'Base (Length - 1) =>
                 Output (I)'Initialized);
 
+         pragma Loop_Invariant
+           (for all I in Output'First ..
+                         Output'First + Index'Base (Length - 1) =>
+                Output (I) /= Frame_Delimiter);
+
          Encode_Block
            (Input  (Input'First  + Index'Base (Offset) .. Input'Last),
             Output (Output'First + Index'Base (Length) .. Output'Last),
@@ -116,6 +121,11 @@ is
          Offset    := Offset    + (Block_Length - 1);
          Remaining := Remaining - (Block_Length - 1);
       end loop;
+
+      pragma Assert
+        (for all I in Output'First ..
+                      Output'First + Index'Base (Length - 1) =>
+             Output (I) /= Frame_Delimiter);
 
       Output (Output'First + Index'Base (Length)) := Frame_Delimiter;
 
@@ -148,7 +158,11 @@ is
 
       if Input'Length > 0 then
          for I in Byte_Count range 0 .. Input'Length - 1 loop
-            pragma Loop_Invariant (Code <= Maximum_Run_Length + 1);
+            pragma Warnings
+              (Off, """Output"" may be referenced before it has a value",
+               Reason => "Initialization of Output is guaranteed via proof");
+
+            pragma Loop_Invariant (Code in 1 .. Maximum_Run_Length + 1);
 
             pragma Loop_Invariant
               (Code = Length - Byte_Count (Code_Pos - Output'First));
@@ -165,6 +179,14 @@ is
               (for all I in Output'First ..
                             Output'First + Index'Base (Length) - 1 =>
                    (if I /= Code_Pos then Output (I)'Initialized));
+
+            --  The frame delimiter is never written to the output.
+            pragma Loop_Invariant
+              (for all I in Output'First ..
+                            Output'First + Index'Base (Length) - 1 =>
+                   (if I /= Code_Pos then Output (I) /= Frame_Delimiter));
+
+            pragma Warnings (On);
 
             --  Stop when a complete block is reached.
             exit when Code = Maximum_Run_Length + 1;
