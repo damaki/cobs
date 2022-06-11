@@ -269,6 +269,177 @@ is
       end loop;
    end Test_Encode_Decode_Loopback;
 
+   -------------------------------------------
+   -- Test_Array_Upper_Limit_Positive_Range --
+   -------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns True when given the
+   --  largest allowed range across positive values.
+
+   procedure Test_Array_Upper_Limit_Positive_Range (T : in out Test) is
+   begin
+      Assert (COBS.Array_Length_Within_Bounds (1, Storage_Offset'Last),
+              "Check unexpectedly failed");
+   end Test_Array_Upper_Limit_Positive_Range;
+
+   -------------------------------------------
+   -- Test_Array_Upper_Limit_Negative_Range --
+   -------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns True when given the
+   --  largest allowed range across negative values.
+
+   procedure Test_Array_Upper_Limit_Negative_Range (T : in out Test) is
+   begin
+      Assert (COBS.Array_Length_Within_Bounds (Storage_Offset'First, -2),
+              "Check unexpectedly failed");
+   end Test_Array_Upper_Limit_Negative_Range;
+
+   ------------------------------------------------
+   -- Test_Array_Upper_Limit_Zero_Crossing_Range --
+   ------------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns True when given the
+   --  largest allowed range symmetrically across zero values.
+
+   procedure Test_Array_Upper_Limit_Zero_Crossing_Range (T : in out Test) is
+      First : constant Storage_Offset := Storage_Offset'First / 2;
+      Last  : constant Storage_Offset := First + Storage_Offset'Last - 1;
+
+   begin
+      Assert (COBS.Array_Length_Within_Bounds (First, Last),
+              "Check unexpectedly failed");
+   end Test_Array_Upper_Limit_Zero_Crossing_Range;
+
+   -------------------------------------------
+   -- Test_Bounds_Exceeded_Positive_Range --
+   -------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns False when given
+   --  a positive range that is one past the maximum allowed length.
+
+   procedure Test_Bounds_Exceeded_Positive_Range (T : in out Test) is
+   begin
+      Assert (not COBS.Array_Length_Within_Bounds (0, Storage_Offset'Last),
+              "Check unexpectedly succeeded");
+   end Test_Bounds_Exceeded_Positive_Range;
+
+   -------------------------------------------
+   -- Test_Bounds_Exceeded_Negative_Range --
+   -------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns False when given
+   --  a negative range that is one past the maximum allowed length.
+
+   procedure Test_Bounds_Exceeded_Negative_Range (T : in out Test) is
+   begin
+      Assert (not COBS.Array_Length_Within_Bounds (Storage_Offset'First, -1),
+              "Check unexpectedly succeeded");
+   end Test_Bounds_Exceeded_Negative_Range;
+
+   ------------------------------------------------
+   -- Test_Bounds_Exceeded_Zero_Crossing_Range --
+   ------------------------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns False when given
+   --  a range crossing zero that is one past the maximum allowed length.
+
+   procedure Test_Bounds_Exceeded_Zero_Crossing_Range (T : in out Test) is
+      First : constant Storage_Offset := Storage_Offset'First / 2;
+      Last  : constant Storage_Offset := First + Storage_Offset'Last;
+   begin
+      Assert (not COBS.Array_Length_Within_Bounds (First, Last),
+              "Check unexpectedly succeeded");
+   end Test_Bounds_Exceeded_Zero_Crossing_Range;
+
+   -----------------------------------
+   -- Test_Bounds_Check_Empty_Range --
+   -----------------------------------
+
+   --  Test that Array_Length_Within_Bounds returns True when given
+   --  an empty/null range.
+
+   procedure Test_Bounds_Check_Empty_Range (T : in out Test) is
+   begin
+      Assert (COBS.Array_Length_Within_Bounds (0, -1),
+              "Check unexpectedly failed");
+   end Test_Bounds_Check_Empty_Range;
+
+   -----------------------------------
+   -- Test_Max_Overhead_Bytes_Empty --
+   -----------------------------------
+
+   --  Test Max_Overhead_Bytes with length zero.
+
+   procedure Test_Max_Overhead_Bytes_Empty (T : in out Test) is
+      Result : Storage_Count;
+   begin
+      Result := COBS.Max_Overhead_Bytes (0);
+      Assert (Result = 1,
+              "Incorrect overhead bytes count:" &
+                Storage_Count'Image (Result));
+   end Test_Max_Overhead_Bytes_Empty;
+
+   ---------------------------------------------
+   -- Test_Max_Overhead_Bytes_Under_One_Block --
+   ---------------------------------------------
+
+   --  Test Max_Overhead_Bytes with length of one byte under one block.
+
+   procedure Test_Max_Overhead_Bytes_Under_One_Block (T : in out Test) is
+      Result : Storage_Count;
+   begin
+      Result := COBS.Max_Overhead_Bytes (253);
+      Assert (Result = 1,
+              "Incorrect overhead bytes count:" &
+                Storage_Count'Image (Result));
+   end Test_Max_Overhead_Bytes_Under_One_Block;
+
+   ---------------------------------------
+   -- Test_Max_Overhead_Bytes_One_Block --
+   ---------------------------------------
+
+   --  Test Max_Overhead_Bytes with length of exactly one block.
+
+   procedure Test_Max_Overhead_Bytes_One_Block (T : in out Test) is
+      Result : Storage_Count;
+   begin
+      Result := COBS.Max_Overhead_Bytes (254);
+      Assert (Result = 2,
+              "Incorrect overhead bytes count:" &
+                Storage_Count'Image (Result));
+   end Test_Max_Overhead_Bytes_One_Block;
+
+   ----------------------------------------
+   -- Test_Max_Overhead_Bytes_Over_Block --
+   ----------------------------------------
+
+   --  Test Max_Overhead_Bytes with length of one byte more than one block.
+
+   procedure Test_Max_Overhead_Bytes_Over_Block (T : in out Test) is
+      Result : Storage_Count;
+   begin
+      Result := COBS.Max_Overhead_Bytes (255);
+      Assert (Result = 2,
+              "Incorrect overhead bytes count:" &
+                Storage_Count'Image (Result));
+   end Test_Max_Overhead_Bytes_Over_Block;
+
+   ----------------------------------------
+   -- Test_Max_Overhead_Bytes_Two_Blocks --
+   ----------------------------------------
+
+   --  Test Max_Overhead_Bytes with length of exactly two blocks.
+
+   procedure Test_Max_Overhead_Bytes_Two_Blocks (T : in out Test) is
+      Result : Storage_Count;
+   begin
+      Result := COBS.Max_Overhead_Bytes (254 * 2);
+      Assert (Result = 3,
+              "Incorrect overhead bytes count:" &
+                Storage_Count'Image (Result));
+   end Test_Max_Overhead_Bytes_Two_Blocks;
+
    -----------
    -- Suite --
    -----------
@@ -277,28 +448,63 @@ is
    is
       Ret : constant Access_Test_Suite := new Test_Suite;
    begin
-      Ret.Add_Test
-        (Test_Caller.Create ("Encode an empty array",
-                             Test_Encode_Empty'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Encode an array of all zeroes",
-                             Test_Encode_All_Zeroes'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Encode an array of no zeroes",
-                             Test_Encode_No_Zeroes'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Decode an empty frame",
-                             Test_Decode_Empty_Frame'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Decode a frame with a missing frame delimiter",
-                             Test_Decode_No_Frame_Delimiter'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Decode test vectors",
-                             Test_Decode_Test_Vectors'Access));
-      Ret.Add_Test
-        (Test_Caller.Create ("Encode/decode loopback",
-                             Test_Encode_Decode_Loopback'Access));
-
+      Ret.Add_Test (Test_Caller.Create
+                      ("Encode an empty array",
+                       Test_Encode_Empty'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Encode an array of all zeroes",
+                       Test_Encode_All_Zeroes'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Encode an array of no zeroes",
+                       Test_Encode_No_Zeroes'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Decode an empty frame",
+                       Test_Decode_Empty_Frame'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Decode a frame with a missing frame delimiter",
+                       Test_Decode_No_Frame_Delimiter'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Decode test vectors",
+                       Test_Decode_Test_Vectors'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Encode/decode loopback",
+                       Test_Encode_Decode_Loopback'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check upper limit (positive range)",
+                       Test_Array_Upper_Limit_Positive_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check upper limit (negative range)",
+                       Test_Array_Upper_Limit_Negative_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check upper limit (zero-crossing range)",
+                       Test_Array_Upper_Limit_Zero_Crossing_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check 1 past limit (positive range)",
+                       Test_Bounds_Exceeded_Positive_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check 1 past limit (negative range)",
+                       Test_Bounds_Exceeded_Negative_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check 1 past limit (zero-crossing range)",
+                       Test_Bounds_Exceeded_Zero_Crossing_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test bounds check (empty range)",
+                       Test_Bounds_Check_Empty_Range'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test overhead bytes with 0 length",
+                       Test_Max_Overhead_Bytes_Empty'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test overhead bytes with just under one block",
+                       Test_Max_Overhead_Bytes_Under_One_Block'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test overhead bytes with exactly one block",
+                       Test_Max_Overhead_Bytes_One_Block'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test overhead bytes with just over one block",
+                       Test_Max_Overhead_Bytes_Over_Block'Access));
+      Ret.Add_Test (Test_Caller.Create
+                      ("Test overhead bytes with exactly two blocks",
+                       Test_Max_Overhead_Bytes_Two_Blocks'Access));
       return Ret;
    end Suite;
 

@@ -25,14 +25,27 @@ jobs:
         with:
           version: 1.2.0
 
-      - name: Build
+      - name: Build library
         run: alr build --validation
 
-      - name: Unit tests
+      - name: Build and run unit tests (instrumented)
+        run: |
+          cd tests
+          alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
+          alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+          alr exec -- bin/unit_tests
+          alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
+
+      - name: Build and run unit tests (non-instrumented)
         run: |
           cd tests
           alr build --validation
-          alr run
+          alr exec -- bin/unit_tests
+
+      - uses: alire-project/gnatcov-to-codecovio-action@main
+        with:
+          fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
+          verbose: true
 
       - name: Proof
         run: |

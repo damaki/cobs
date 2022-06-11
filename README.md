@@ -1,6 +1,6 @@
 # Consistent Overhead Byte Stuffing (COBS)
 This repository provides an implementation of a COBS[1] encoder and
-decoder using the SPARK programming language. 
+decoder using the SPARK programming language.
 
 ## License
 All files are licensed under the MIT license.
@@ -55,10 +55,53 @@ is
 
    type My_COBS is new Generic_COBS (Byte       => Unsigned_8,
                                      Index      => Positive,
-                                     Byte_Count => Positive,
+                                     Byte_Count => Natural,
                                      Byte_Array => Byte_Array);
 end Example;
 ```
+
+## Verification
+
+This project takes a "hybrid verification" approach combining formal
+verification and testing.
+
+GNATprove is used to prove absence of run-time errors. At the time of writing
+there are 139 checks that are automatically proved.
+
+The unit tests are used to check that the encoder and decoder produce the
+correct results for a variety of inputs, with 100% MC/DC source coverage.
+
+### Reproducing the results
+
+#### Proof
+
+To run the proofs:
+
+```sh
+cd prove
+alr exec -- gnatprove -P ../cobs
+```
+
+If you want to see only failed checks, then pass `--report=fail` to `gnatprove`.
+
+#### Tests
+
+To run the unit tests:
+```sh
+alr build --verification
+cd tests
+alr build --verification
+alr run
+```
+
+To run the tests and generate a code coverage report:
+```sh
+alr build --verification
+cd tests
+./coverage.sh
+```
+
+The report will be generated in `tests/gnatcov_out/index.html`.
 
 ## References
 

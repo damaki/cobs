@@ -60,8 +60,6 @@ is
 
             Code       := B;
             Run_Length := Byte_Count (Byte'Pos (B));
-
-            exit when B = Frame_Delimiter;
          end if;
 
          Run_Length := Run_Length - 1;
