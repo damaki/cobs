@@ -51,9 +51,3 @@ jobs:
         run: |
           cd prove
           alr exec -- gnatprove -P ../cobs.gpr
-
-      - name: Upload GNATprove report
-        uses: actions/upload-artifact@v3
-        with:
-          name: GNATprove report
-          path: obj/**/gnatprove.out
