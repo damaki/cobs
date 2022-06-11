@@ -45,7 +45,9 @@ jobs:
           alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
 
       - name: Run instrumented unit tests
-        run: alr exec -- bin/unit_tests
+        run: |
+          cd tests
+          alr exec -- bin/unit_tests
 
       - name: Run GNATcov code coverage analysis on the test files
         run:
