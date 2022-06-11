@@ -28,12 +28,6 @@ jobs:
       - name: Build
         run: alr build --validation
 
-      - name: Unit tests
-        run: |
-          cd tests
-          alr build --validation
-          alr run
-
       - name: Instrument the project for coverage analysis
         run: cd tests && alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
 
