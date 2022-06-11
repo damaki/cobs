@@ -54,9 +54,6 @@ jobs:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
 
-      - name: Upload coverage report
-        run:
-
       - name: Proof
         run: |
           cd prove
