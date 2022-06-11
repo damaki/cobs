@@ -39,11 +39,13 @@ jobs:
           cd tests
           alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
 
-      - name: Build and run the tests with instrumented code
+      - name: Build the tests with instrumented code
         run:
           cd tests
           alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-          alr exec -- bin/unit_tests
+
+      - name: Run instrumented unit tests
+        run: alr exec -- bin/unit_tests
 
       - name: Run GNATcov code coverage analysis on the test files
         run:
