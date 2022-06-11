@@ -2,7 +2,7 @@
 
 alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
 
-alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
 
 alr exec -- bin/unit_tests
 
