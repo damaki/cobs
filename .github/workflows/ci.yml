@@ -44,7 +44,9 @@ jobs:
         run: cd tests && alr exec -- bin/unit_tests
 
       - name: Run GNATcov code coverage analysis on the test files
-        run: cd tests && alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
+        run: |
+          find
+          cd tests && alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
 
       - uses: alire-project/gnatcov-to-codecovio-action@main
         with:
