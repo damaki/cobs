@@ -65,8 +65,12 @@ end Example;
 This project takes a "hybrid verification" approach combining formal
 verification and testing.
 
-GNATprove is used to prove absence of run-time errors. At the time of writing
-there are 163 checks that are automatically proved.
+GNATprove is used to prove absence of run-time errors and some limited
+functional properties:
+ * the encoder only emits a frame delimiter (zero byte) at the end
+   of the encoded frame.
+
+At the time of writing there are 163 checks that are automatically proved.
 
 The unit tests are used to check that the encoder and decoder produce the
 correct results for a variety of inputs, with 100% MC/DC source coverage.
