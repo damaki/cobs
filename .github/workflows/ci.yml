@@ -51,3 +51,5 @@ jobs:
         run: |
           cd prove
           alr exec -- gnatprove -P ../cobs.gpr
+        # Skip on Windows due to broken toolchain
+        if: ${{ matrix.os }} != 'windows-latest'
