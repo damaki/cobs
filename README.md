@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/damaki/cobs/branch/master/graph/badge.svg?token=3843CRXWFH)](https://codecov.io/gh/damaki/cobs)
+
 # Consistent Overhead Byte Stuffing (COBS)
 This repository provides an implementation of a COBS[1] encoder and
 decoder using the SPARK programming language.
