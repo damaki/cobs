@@ -40,7 +40,7 @@ jobs:
           alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
 
       - name: Build the tests with instrumented code
-        run:
+        run: |
           cd tests
           alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
 
