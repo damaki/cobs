@@ -35,24 +35,16 @@ jobs:
           alr run
 
       - name: Instrument the project for coverage analysis
-        run: |
-          cd tests
-          alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
+        run: cd tests && alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
 
       - name: Build the tests with instrumented code
-        run: |
-          cd tests
-          alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
+        run: cd tests && alr build --validation -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
 
       - name: Run instrumented unit tests
-        run: |
-          cd tests
-          alr exec -- bin/unit_tests
+        run: cd tests && alr exec -- bin/unit_tests
 
       - name: Run GNATcov code coverage analysis on the test files
-        run: |
-          cd tests
-          alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
+        run: cd tests && alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
 
       - uses: alire-project/gnatcov-to-codecovio-action@main
         with:
