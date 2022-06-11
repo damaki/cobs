@@ -49,6 +49,28 @@ is
 
    procedure Test_Encode_Decode_Loopback (T : in out Test);
 
+   ----------------------------------------
+   --  Array_Length_Within_Bounds tests  --
+   ----------------------------------------
+
+   procedure Test_Array_Upper_Limit_Positive_Range (T : in out Test);
+   procedure Test_Array_Upper_Limit_Negative_Range (T : in out Test);
+   procedure Test_Array_Upper_Limit_Zero_Crossing_Range (T : in out Test);
+   procedure Test_Bounds_Exceeded_Positive_Range (T : in out Test);
+   procedure Test_Bounds_Exceeded_Negative_Range (T : in out Test);
+   procedure Test_Bounds_Exceeded_Zero_Crossing_Range (T : in out Test);
+   procedure Test_Bounds_Check_Empty_Range (T : in out Test);
+
+   --------------------------------
+   --  Max_Overhead_Bytes tests  --
+   --------------------------------
+
+   procedure Test_Max_Overhead_Bytes_Empty (T : in out Test);
+   procedure Test_Max_Overhead_Bytes_Under_One_Block (T : in out Test);
+   procedure Test_Max_Overhead_Bytes_One_Block (T : in out Test);
+   procedure Test_Max_Overhead_Bytes_Over_Block (T : in out Test);
+   procedure Test_Max_Overhead_Bytes_Two_Blocks (T : in out Test);
+
    ----------------
    -- Test suite --
    ----------------
