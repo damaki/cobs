@@ -36,7 +36,8 @@ project Cobs is
                                       "--timeout=60",
                                       "--memlimit=0",
                                       "--steps=15000",
-                                      "--report=statistics");
+                                      "--report=statistics",
+                                      "--checks-as-errors");
    end Prove;
 
 end Cobs;
