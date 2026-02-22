@@ -28,21 +28,22 @@ jobs:
       - name: Build library
         run: alr build --validation
 
-      - name: Build and run unit tests (instrumented)
-        run: |
-          cd tests
-          alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
-          alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-          alr exec -- bin/unit_tests
-          alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
-
       - name: Build and run unit tests (non-instrumented)
         run: |
           cd tests
           alr build --validation
           alr exec -- bin/unit_tests
 
+      - name: Build and run unit tests (instrumented)
+        shell: bash
+        # Skip on macos due to missing aarch64 binaries of gnatcov
+        if: matrix.os != 'macos-latest'
+        run: |
+          cd tests
+          ./coverage.sh
+
       - uses: alire-project/gnatcov-to-codecovio-action@main
+        if: matrix.os == 'ubuntu-latest'
         with:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
@@ -51,6 +52,5 @@ jobs:
         run: |
           cd prove
           ./run-proofs.sh
-        # Skip on Windows due to broken toolchain/environment which causes
-        # all proof checks to fail (except initialization and termination).
-        if: matrix.os != 'windows-latest'
+        # There's no much value running the proofs on multiple OSes
+        if: matrix.os == 'ubuntu-latest'
