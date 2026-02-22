@@ -35,4 +35,5 @@ package COBS is new
     (Byte       => System.Storage_Elements.Storage_Element,
      Index      => System.Storage_Elements.Storage_Offset,
      Byte_Count => System.Storage_Elements.Storage_Count,
-     Byte_Array => System.Storage_Elements.Storage_Array)with Pure;
+     Byte_Array => System.Storage_Elements.Storage_Array);
+pragma Pure (COBS);

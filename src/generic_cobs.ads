@@ -65,18 +65,16 @@ package Generic_COBS with Pure, SPARK_Mode => On, Always_Terminates is
         and then Output'Length >= Input'Length),
 
      Post                   =>
-       (
-        --  The decoded length does not exceed the length of
-        --  either array parameter.
-        Length <= Output'Length
-        and then
-          Length
-          <= Input'Length
+       Length <= Output'Length
 
-             --  Only the first 'Length' bytes of the Output are initialized.
-        and then
-          (for all I in 0 .. Length - 1 =>
-             Output (Output'First + Index'Base (I))'Initialized));
+       and then
+         --  The decoded length does not exceed Input's length
+         Length <= Input'Length
+
+       and then
+         --  Only the first 'Length' bytes of the Output are initialized.
+         (for all I in 0 .. Length - 1 =>
+            Output (Output'First + Index'Base (I))'Initialized);
    --  Decodes a COBS-encoded byte array.
    --
    --  @param Input The COBS encoded bytes to be decoded. This may or may not
