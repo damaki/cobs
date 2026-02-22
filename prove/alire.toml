@@ -9,7 +9,7 @@ maintainers-logins = ["damaki"]
 executables = ["prove"]
 
 [[depends-on]]
-gnatprove = ">=14"
+gnatprove = "^15"
 cobs = "*"
 
 [[pins]]
