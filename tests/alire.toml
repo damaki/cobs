@@ -9,8 +9,8 @@ maintainers-logins = ["damaki"]
 executables = ["unit_tests"]
 
 [[depends-on]]
-aunit = "^22.0.0"
-gnatcov = "^22.0.1"
+aunit = "^25"
+gnatcov = "^22"
 cobs = "*"
 
 [[pins]]
