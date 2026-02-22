@@ -26,18 +26,4 @@ project Cobs is
       for Artifacts (".") use ("share");
    end Install;
 
-   package Prove is
-      for Proof_Switches ("Ada") use ("--proof=per_path",
-                                      "-j0",
-                                      "--no-global-generation",
-                                      "--no-inlining",
-                                      "--no-loop-unrolling",
-                                      "--prover=cvc4,z3,altergo",
-                                      "--timeout=60",
-                                      "--memlimit=0",
-                                      "--steps=15000",
-                                      "--report=statistics",
-                                      "--checks-as-errors");
-   end Prove;
-
 end Cobs;
