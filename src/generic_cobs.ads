@@ -25,55 +25,58 @@ generic
    type Index is range <>;
    type Byte_Count is range <>;
    type Byte_Array is array (Index range <>) of Byte;
-package Generic_COBS
-with Pure, SPARK_Mode => On, Always_Terminates
-is
-   pragma Compile_Time_Error (Byte'First /= 0,
-                              "Byte'First must be 0");
+package Generic_COBS with Pure, SPARK_Mode => On, Always_Terminates is
 
-   pragma Compile_Time_Error (Byte'Last <= 1,
-                              "Byte'Last must be greater than 1");
+   pragma Compile_Time_Error (Byte'First /= 0, "Byte'First must be 0");
 
-   pragma Compile_Time_Error (Byte_Count'First /= 0,
-                              "Byte_Count'First must be 0");
+   pragma
+     Compile_Time_Error (Byte'Last <= 1, "Byte'Last must be greater than 1");
 
-   pragma Compile_Time_Error
-     (Byte_Count'Pos (Byte_Count'Last) /= Index'Pos (Index'Last),
-      "Byte_Count'Last must be equal to Index'Last");
+   pragma
+     Compile_Time_Error (Byte_Count'First /= 0, "Byte_Count'First must be 0");
+
+   pragma
+     Compile_Time_Error
+       (Byte_Count'Pos (Byte_Count'Last) /= Index'Pos (Index'Last),
+        "Byte_Count'Last must be equal to Index'Last");
 
    subtype Positive_Byte_Count is Byte_Count range 1 .. Byte_Count'Last;
 
    Frame_Delimiter : constant Byte := 0;
    --  COBS uses 0 as the frame delimiter byte.
 
-   procedure Decode (Input  :     Byte_Array;
-                     Output : out Byte_Array;
-                     Length : out Byte_Count)
-     with Global => null,
+   procedure Decode
+     (Input : Byte_Array; Output : out Byte_Array; Length : out Byte_Count)
+   with
+     Global                 => null,
      Relaxed_Initialization => Output,
-     Pre => (
-             --  The bounds of the input arrays must not be large enough to
-             --  cause a Constraint_Error when reading the 'Length attribute.
-             Array_Length_Within_Bounds (Input'First, Input'Last)
-             and then Array_Length_Within_Bounds (Output'First, Output'Last)
+     Pre                    =>
+       (
+        --  The bounds of the input arrays must not be large enough to
+        --  cause a Constraint_Error when reading the 'Length attribute.
+        Array_Length_Within_Bounds (Input'First, Input'Last)
+        and then Array_Length_Within_Bounds (Output'First, Output'Last)
 
-             --  Cannot decode an empty Input array.
-             and then Input'Length > 0
+        --  Cannot decode an empty Input array.
+        and then Input'Length > 0
 
-             --  The Output array must be large enough to store all of the
-             --  decoded data.
-             and then Output'Length >= Input'Length),
+        --  The Output array must be large enough to store all of the
+        --  decoded data.
+        and then Output'Length >= Input'Length),
 
-     Post => (
-              --  The decoded length does not exceed the length of
-              --  either array parameter.
-              Length <= Output'Length
-              and then Length <= Input'Length
+     Post                   =>
+       (
+        --  The decoded length does not exceed the length of
+        --  either array parameter.
+        Length <= Output'Length
+        and then
+          Length
+          <= Input'Length
 
-              --  Only the first 'Length' bytes of the Output are initialized.
-              and then
-                (for all I in 0 .. Length - 1 =>
-                     Output (Output'First + Index'Base (I))'Initialized));
+             --  Only the first 'Length' bytes of the Output are initialized.
+        and then
+          (for all I in 0 .. Length - 1 =>
+             Output (Output'First + Index'Base (I))'Initialized));
    --  Decodes a COBS-encoded byte array.
    --
    --  @param Input The COBS encoded bytes to be decoded. This may or may not
@@ -87,45 +90,50 @@ is
    --
    --  @param Length The length of the decoded frame is written here.
 
-   procedure Encode (Input  :     Byte_Array;
-                     Output : out Byte_Array;
-                     Length : out Byte_Count)
-     with Global => null,
+   procedure Encode
+     (Input : Byte_Array; Output : out Byte_Array; Length : out Byte_Count)
+   with
+     Global                 => null,
      Relaxed_Initialization => Output,
-     Pre => (
-             --  The bounds of the input arrays must not be large enough to
-             --  cause a Constraint_Error when reading the 'Length attribute.
-             Array_Length_Within_Bounds (Input'First, Input'Last)
-             and then Array_Length_Within_Bounds (Output'First, Output'Last)
+     Pre                    =>
+       (
+        --  The bounds of the input arrays must not be large enough to
+        --  cause a Constraint_Error when reading the 'Length attribute.
+        Array_Length_Within_Bounds (Input'First, Input'Last)
+        and then Array_Length_Within_Bounds (Output'First, Output'Last)
 
-             --  The number of bytes to encode in the Input array must leave
-             --  enough headroom for COBS overhead bytes plus frame delimiter.
-             and then Input'Length <=
-               (Positive_Byte_Count'Last
-                - (Max_Overhead_Bytes (Positive_Byte_Count'Last) + 1))
+        --  The number of bytes to encode in the Input array must leave
+        --  enough headroom for COBS overhead bytes plus frame delimiter.
+        and then
+          Input'Length
+          <= (Positive_Byte_Count'Last
+              - (Max_Overhead_Bytes (Positive_Byte_Count'Last) + 1))
 
-             --  Output array must be large enough to encode the Input array
-             --  and the additional overhead bytes.
-             and then Output'Length >=
-               Input'Length + Max_Overhead_Bytes (Input'Length) + 1),
+        --  Output array must be large enough to encode the Input array
+        --  and the additional overhead bytes.
+        and then
+          Output'Length
+          >= Input'Length + Max_Overhead_Bytes (Input'Length) + 1),
 
-     Post => (
-              --  The length of the output is always bigger than the input
-              (Length in Input'Length + 1 .. Output'Length)
+     Post                   =>
+       (
+        --  The length of the output is always bigger than the input
+        (Length in Input'Length + 1 .. Output'Length)
 
-              --  Only the first 'Length' bytes of the Output are initialized.
-              and then
-                Output (Output'First ..
-                        Output'First + Index'Base (Length - 1))'Initialized
+        --  Only the first 'Length' bytes of the Output are initialized.
+        and then
+          Output
+            (Output'First
+             .. Output'First + Index'Base (Length - 1))'Initialized
 
-              --  The last byte in the output is a frame delimiter.
-              --  All other bytes before the frame delimiter are non-zero.
-              and then
-                (for all I in Output'First ..
-                              Output'First + Index'Base (Length - 1) =>
-                   (if I < Output'First + Index'Base (Length - 1)
-                    then Output (I) /= Frame_Delimiter
-                    else Output (I) = Frame_Delimiter)));
+          --  The last byte in the output is a frame delimiter.
+          --  All other bytes before the frame delimiter are non-zero.
+        and then
+          (for all I in
+             Output'First .. Output'First + Index'Base (Length - 1) =>
+             (if I < Output'First + Index'Base (Length - 1)
+              then Output (I) /= Frame_Delimiter
+              else Output (I) = Frame_Delimiter)));
    --  Encode a byte array.
    --
    --  The contents of the "Input" array are encoded and written
@@ -140,17 +148,17 @@ is
    --
    --  @param Length The length of the encoded frame is written here.
 
-   function Max_Overhead_Bytes (Input_Length : Byte_Count)
-                                return Positive_Byte_Count
-     with Global => null;
+   function Max_Overhead_Bytes
+     (Input_Length : Byte_Count) return Positive_Byte_Count
+   with Global => null;
    --  Return the maximum number of overhead bytes that are inserted into
    --  the output during COBS encoding for a given input length.
 
-   function Array_Length_Within_Bounds (First, Last : Index'Base)
-                                        return Boolean is
-     (Last < First
-      or else First > 0
-      or else Last < First + Index (Byte_Count'Last));
+   function Array_Length_Within_Bounds
+     (First, Last : Index'Base) return Boolean
+   is (Last < First
+       or else First > 0
+       or else Last < First + Index (Byte_Count'Last));
    --  Check that the length of the given range does not exceed Byte_Count'Last
    --
    --  This check is equivalent to: (Last - First) + 1 <= Byte_Count'Last
@@ -189,29 +197,35 @@ private
    --  this case is not implemented in our encoder (but is supported by
    --  the decoder).
 
-   function Max_Overhead_Bytes (Input_Length : Byte_Count)
-                                return Positive_Byte_Count is
-     ((Input_Length / Maximum_Run_Length) + 1);
+   function Max_Overhead_Bytes
+     (Input_Length : Byte_Count) return Positive_Byte_Count
+   is ((Input_Length / Maximum_Run_Length) + 1);
 
-   procedure Encode_Block (Input  :     Byte_Array;
-                           Output : out Byte_Array;
-                           Length : out Byte_Count)
-     with Inline,
-     Global => null,
+   procedure Encode_Block
+     (Input : Byte_Array; Output : out Byte_Array; Length : out Byte_Count)
+   with
+     Inline,
+     Global                 => null,
      Relaxed_Initialization => Output,
-     Pre => (Array_Length_Within_Bounds (Input'First, Input'Last)
-             and then Array_Length_Within_Bounds (Output'First, Output'Last)
-             and then Output'Length > Input'Length),
-     Post => (Length <= Input'Length + 1
-              and then (if Length < Input'Length + 1
-                        then Length >= Maximum_Run_Length + 1)
-              and then
-                Output (Output'First ..
-                        Output'First + Index'Base (Length - 1))'Initialized
-              and then
-                (for all I in Output'First ..
-                              Output'First + Index'Base (Length - 1) =>
-                    Output (I) /= Frame_Delimiter));
+     Pre                    =>
+       (Array_Length_Within_Bounds (Input'First, Input'Last)
+        and then Array_Length_Within_Bounds (Output'First, Output'Last)
+        and then Output'Length > Input'Length),
+     Post                   =>
+       (Length <= Input'Length + 1
+
+        and then
+          (if Length < Input'Length + 1 then Length >= Maximum_Run_Length + 1)
+
+        and then
+          Output
+            (Output'First
+             .. Output'First + Index'Base (Length - 1))'Initialized
+
+        and then
+          (for all I in
+             Output'First .. Output'First + Index'Base (Length - 1) =>
+             Output (I) /= Frame_Delimiter));
    --  Encodes a single block of bytes.
    --
    --  This prepends one overhead byte, then encodes as many bytes as possible
