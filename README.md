@@ -85,7 +85,7 @@ To run the proofs:
 
 ```sh
 cd prove
-alr exec -- gnatprove -P ../cobs
+./run-proofs.sh
 ```
 
 If you want to see only failed checks, then pass `--report=fail` to `gnatprove`.

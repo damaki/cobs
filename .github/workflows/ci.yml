@@ -21,20 +21,12 @@ jobs:
       - uses: actions/checkout@v2
 
       # Install and setup Alire package manager
-      - uses: alire-project/setup-alire@v1
+      - uses: alire-project/setup-alire@v4
         with:
-          version: 1.2.0
+          version: 2.1.0
 
       - name: Build library
         run: alr build --validation
-
-      - name: Build and run unit tests (instrumented)
-        run: |
-          cd tests
-          alr gnatcov instrument --level=stmt+mcdc --dump-trigger=atexit --projects cobs.gpr
-          alr build -- --src-subdirs=gnatcov-instr --implicit-with=gnatcov_rts_full
-          alr exec -- bin/unit_tests
-          alr gnatcov coverage --annotate=xcov --output-dir gnatcov_out --level=stmt+mcdc --projects cobs.gpr *.srctrace
 
       - name: Build and run unit tests (non-instrumented)
         run: |
@@ -42,7 +34,18 @@ jobs:
           alr build --validation
           alr exec -- bin/unit_tests
 
+      - name: Build and run unit tests (instrumented)
+        shell: bash
+        # Skip on macos due to missing aarch64 binaries of gnatcov
+        if: matrix.os != 'macos-latest'
+        run: |
+          cd tests
+          ./coverage.sh
+
       - uses: alire-project/gnatcov-to-codecovio-action@main
+        if: matrix.os == 'ubuntu-latest'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
@@ -50,7 +53,6 @@ jobs:
       - name: Proof
         run: |
           cd prove
-          alr exec -- gnatprove -P ../cobs.gpr
-        # Skip on Windows due to broken toolchain/environment which causes
-        # all proof checks to fail (except initialization and termination).
-        if: matrix.os != 'windows-latest'
+          ./run-proofs.sh
+        # There's no much value running the proofs on multiple OSes
+        if: matrix.os == 'ubuntu-latest'

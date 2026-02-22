@@ -1,6 +1,6 @@
 name = "cobs"
 description = "Consistent Overhead Byte Stuffing (COBS) encoder/decoder"
-version = "1.2.0-dev"
+version = "2.0.0-dev"
 
 licenses = "MIT"
 authors = ["Daniel King"]
@@ -8,3 +8,6 @@ maintainers = ["Daniel King <damaki.gh@gmail.com>"]
 maintainers-logins = ["damaki"]
 website = "https://github.com/damaki/cobs"
 tags = ["cobs", "spark", "embedded", "nostd"]
+
+[[depends-on]]
+gnat = ">=14"

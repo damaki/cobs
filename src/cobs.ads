@@ -29,8 +29,11 @@ with System.Storage_Elements;
 --
 --  This instantiation is only valid for systems that have a
 --  8-bit Storage_Element type.
-package COBS is new Generic_COBS
-  (Byte       => System.Storage_Elements.Storage_Element,
-   Index      => System.Storage_Elements.Storage_Offset,
-   Byte_Count => System.Storage_Elements.Storage_Count,
-   Byte_Array => System.Storage_Elements.Storage_Array) with Pure;
+
+package COBS is new
+  Generic_COBS
+    (Byte       => System.Storage_Elements.Storage_Element,
+     Index      => System.Storage_Elements.Storage_Offset,
+     Byte_Count => System.Storage_Elements.Storage_Count,
+     Byte_Array => System.Storage_Elements.Storage_Array);
+pragma Pure (COBS);
