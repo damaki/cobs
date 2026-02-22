@@ -16,3 +16,10 @@ alr gnatcov coverage \
     --level=stmt+mcdc \
     --projects cobs.gpr \
     *.srctrace
+
+alr gnatcov coverage \
+    --annotate=xcov+ \
+    --output-dir gnatcov_out \
+    --level=stmt+mcdc \
+    --projects cobs.gpr \
+    *.srctrace
