@@ -26,7 +26,7 @@ generic
    type Byte_Count is range <>;
    type Byte_Array is array (Index range <>) of Byte;
 package Generic_COBS
-with Pure, SPARK_Mode => On
+with Pure, SPARK_Mode => On, Always_Terminates
 is
    pragma Compile_Time_Error (Byte'First /= 0,
                               "Byte'First must be 0");
@@ -73,8 +73,7 @@ is
               --  Only the first 'Length' bytes of the Output are initialized.
               and then
                 (for all I in 0 .. Length - 1 =>
-                     Output (Output'First + Index'Base (I))'Initialized)),
-     Annotate => (GNATProve, Terminating);
+                     Output (Output'First + Index'Base (I))'Initialized));
    --  Decodes a COBS-encoded byte array.
    --
    --  @param Input The COBS encoded bytes to be decoded. This may or may not
@@ -126,8 +125,7 @@ is
                               Output'First + Index'Base (Length - 1) =>
                    (if I < Output'First + Index'Base (Length - 1)
                     then Output (I) /= Frame_Delimiter
-                    else Output (I) = Frame_Delimiter))),
-     Annotate => (GNATProve, Terminating);
+                    else Output (I) = Frame_Delimiter)));
    --  Encode a byte array.
    --
    --  The contents of the "Input" array are encoded and written
@@ -213,8 +211,7 @@ private
               and then
                 (for all I in Output'First ..
                               Output'First + Index'Base (Length - 1) =>
-                    Output (I) /= Frame_Delimiter)),
-     Annotate => (GNATProve, Terminating);
+                    Output (I) /= Frame_Delimiter));
    --  Encodes a single block of bytes.
    --
    --  This prepends one overhead byte, then encodes as many bytes as possible
