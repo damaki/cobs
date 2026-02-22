@@ -44,6 +44,8 @@ jobs:
 
       - uses: alire-project/gnatcov-to-codecovio-action@main
         if: matrix.os == 'ubuntu-latest'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
         with:
           fail_ci_if_error: false # Don't fail the workflow if codecov.io failed
           verbose: true
